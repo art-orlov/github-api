@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <flow name="union-apiFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/union/orgs/{org}/users/{user}" doc:name="Copy_of_HTTP"/>
+        <scatter-gather metadata:id="a639ef5f-759b-45f9-9746-79d68ebc221a" doc:name="Copy_of_Scatter-Gather">
+            <custom-aggregation-strategy class="JsonAggregator"/>
+            <processor-chain>
+                <set-variable variableName="org" value="#[message.inboundProperties.'http.uri.params'.org]" doc:name="Copy_of_Variable"/>
+                <flow-ref name="github-apiSub_Flow" metadata:id="f33d2340-6436-45ed-a2f4-9ff5f95019cf" doc:name="github-apiSub_Flow"/>
+            </processor-chain>
+            <processor-chain>
+                <set-variable variableName="user" value="#[message.inboundProperties.'http.uri.params'.user]" doc:name="Copy_of_Variable"/>
+                <flow-ref name="bitbucket-apiSub_Flow" metadata:id="0f660165-7613-426b-8777-cc98ecc1c691" doc:name="Copy_of_bitbucket-apiSub_Flow"/>
+            </processor-chain>
+        </scatter-gather>
+    </flow>
+</mule>

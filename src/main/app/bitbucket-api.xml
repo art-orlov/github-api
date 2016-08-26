@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <sub-flow name="bitbucket-apiSub_Flow">
+        <http:request config-ref="Bitbucket_Request_Configuration" path="/2.0/users/{user}" method="GET" metadata:id="f58050e5-bf05-4430-aa22-4283146f3734" doc:name="Copy_of_HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="user" value="#[flowVars.user]"/>
+            </http:request-builder>
+        </http:request>
+        <dw:transform-message metadata:id="cd9893d3-bc64-4846-b0ba-3b992d978f83" doc:name="Copy_of_Transform Message">
+            <dw:input-payload doc:sample="bitbucket-output-example.json"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	user: payload.username,
+	name: payload.display_name
+}]]></dw:set-payload>
+        </dw:transform-message>
+    </sub-flow>
+    <flow name="bitbucket-apiFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/bitbucket/users/{user}" doc:name="Copy_of_HTTP"/>
+        <set-variable variableName="user" value="#[message.inboundProperties.'http.uri.params'.user]" doc:name="Copy_of_Variable"/>
+        <flow-ref name="bitbucket-apiSub_Flow" doc:name="Copy_of_Flow Reference"/>
+    </flow>
+</mule>

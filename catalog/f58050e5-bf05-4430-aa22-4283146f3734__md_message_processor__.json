@@ -1,0 +1,11 @@
+{
+    "inputMessageMetadata": {},
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "Bitbucket-JSON-API-output"
+        }
+    },
+    "id": "f58050e5-bf05-4430-aa22-4283146f3734",
+    "version": "5.2.0.0"
+}

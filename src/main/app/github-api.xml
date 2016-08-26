@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:jersey="http://www.mulesoft.org/schema/mule/jersey" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jersey http://www.mulesoft.org/schema/mule/jersey/current/mule-jersey.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <http:request-config name="Github_Request_Configuration" protocol="HTTPS" host="api.github.com" port="443" doc:name="HTTP Request Configuration"/>
+    <http:request-config name="Bitbucket_Request_Configuration" protocol="HTTPS" host="api.bitbucket.org" port="443" doc:name="HTTP Request Configuration"/>
+    <sub-flow name="github-apiSub_Flow">
+        <http:request config-ref="Github_Request_Configuration" path="/orgs/{org}" method="GET" metadata:id="cf994857-e75d-4555-9146-362831cd6597" doc:name="HTTP">
+            <http:request-builder>
+                <http:uri-param paramName="org" value="#[flowVars.org]"/>
+            </http:request-builder>
+        </http:request>
+        <dw:transform-message metadata:id="9f192b85-d4cb-47d5-b647-2b0c6e861fca" doc:name="Transform Message">
+            <dw:input-payload doc:sample="github-output-example.json"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	name: payload.name,
+	site: payload.blog
+}]]></dw:set-payload>
+        </dw:transform-message>
+    </sub-flow>
+    <flow name="github-apiFlow" initialState="started">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/github/orgs/{org}" doc:name="HTTP"/>
+        <set-variable variableName="org" value="#[message.inboundProperties.'http.uri.params'.org]" doc:name="Variable"/>
+        <flow-ref name="github-apiSub_Flow" doc:name="github-apiSub_Flow"/>
+    </flow>
+</mule>
