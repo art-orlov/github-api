@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:mock="http://www.mulesoft.org/schema/mule/mock" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mock http://www.mulesoft.org/schema/mule/mock/current/mule-mock.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+    <munit:config name="munit" doc:name="MUnit configuration"/>
+    <spring:beans>
+        <spring:import resource="classpath:github-api.xml"/>
+    </spring:beans>
+    <munit:test name="github-api-test-suiteTest" description="MUnit Test">
+        <mock:when messageProcessor=".*:.*" doc:name="Mock">
+            <mock:with-attributes>
+                <mock:with-attribute name="doc:name" whereValue="#['HTTP']"/>
+            </mock:with-attributes>
+            <mock:then-return payload="#[getResource('github-test-output-example.json').asStream()]" mimeType="text/json"/>
+        </mock:when>
+        <munit:set payload="#['']" doc:name="Set Message">
+            <munit:inbound-properties>
+                <munit:inbound-property key="http.uri.params" value="#[['org':'cloudcastle']]"/>
+            </munit:inbound-properties>
+        </munit:set>
+        <flow-ref name="github-apiFlow" metadata:id="9b3b4db3-cdb2-4ce1-9a2f-715e289f72a9" doc:name="github-apiFlow"/>
+        <byte-array-to-string-transformer doc:name="Byte Array to String"/>
+        <munit:assert-payload-equals expectedValue="#[getResource('github-test-input-example.json').asString()]" doc:name="Assert Payload"/>
+        <munit:assert-on-equals expectedValue="#[org]" actualValue="#[message.inboundProperties.'http.uri.params'.org]" doc:name="Assert Equals"/>
+    </munit:test>
+</mule>
