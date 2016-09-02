@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    <vm:connector name="sharedVmConnector" validateConnections="true" doc:name="VM"/>
+    <flow name="test-vm-transportFlow1">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/vm" doc:name="HTTP"/>
+        <set-payload value="#[message.inboundProperties.'http.query.params'.info]" doc:name="Set Payload"/>
+        <vm:outbound-endpoint exchange-pattern="one-way" path="test-in-queue" connector-ref="sharedVmConnector" doc:name="VM"/>
+    </flow>
+    <flow name="test-vm-transportFlow">
+        <vm:inbound-endpoint exchange-pattern="one-way" path="test-in-queue" connector-ref="sharedVmConnector" doc:name="VM"/>
+        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>
