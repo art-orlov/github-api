@@ -15,12 +15,12 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
     <http:request-config name="Github_Request_Configuration" protocol="HTTPS" host="api.github.com" port="443" doc:name="HTTP Request Configuration"/>
     <http:request-config name="Bitbucket_Request_Configuration" protocol="HTTPS" host="api.bitbucket.org" port="443" doc:name="HTTP Request Configuration"/>
     <sub-flow name="github-apiSub_Flow">
-        <http:request config-ref="Github_Request_Configuration" path="/orgs/{org}" method="GET" metadata:id="cf994857-e75d-4555-9146-362831cd6597" doc:name="HTTP">
+        <http:request config-ref="Github_Request_Configuration" path="/orgs/{org}" method="GET" metadata:id="cf994857-e75d-4555-9146-362831cd6597" doc:name="Call Github API">
             <http:request-builder>
                 <http:uri-param paramName="org" value="#[flowVars.org]"/>
             </http:request-builder>
         </http:request>
-        <dw:transform-message metadata:id="9f192b85-d4cb-47d5-b647-2b0c6e861fca" doc:name="Transform Message">
+        <dw:transform-message metadata:id="9f192b85-d4cb-47d5-b647-2b0c6e861fca" doc:name="Transform Github Response">
             <dw:input-payload doc:sample="github-output-example.json"/>
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -32,8 +32,8 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
         </dw:transform-message>
     </sub-flow>
     <flow name="github-apiFlow" initialState="started">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/github/orgs/{org}" doc:name="HTTP"/>
-        <set-variable variableName="org" value="#[message.inboundProperties.'http.uri.params'.org]" doc:name="Variable"/>
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/github/orgs/{org}" doc:name="HTTP Listener"/>
+        <set-variable variableName="org" value="#[message.inboundProperties.'http.uri.params'.org]" doc:name="Set Org Variable"/>
         <flow-ref name="github-apiSub_Flow" doc:name="github-apiSub_Flow"/>
     </flow>
 </mule>

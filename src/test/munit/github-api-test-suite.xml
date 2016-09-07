@@ -11,21 +11,21 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
         <spring:import resource="classpath:github-api.xml"/>
     </spring:beans>
     <munit:test name="github-api-test-suiteTest" description="MUnit Test">
-        <mock:when messageProcessor=".*:.*" doc:name="Mock">
+        <mock:when messageProcessor=".*:.*" doc:name="Mock Github API Response">
             <mock:with-attributes>
-                <mock:with-attribute name="doc:name" whereValue="#['HTTP']"/>
+                <mock:with-attribute name="doc:name" whereValue="#['Call Github API']"/>
             </mock:with-attributes>
             <mock:then-return payload="#[getResource('github-test-output-example.json').asStream()]" mimeType="text/json"/>
         </mock:when>
-        <munit:set payload="#['']" doc:name="Set Message">
+        <munit:set payload="#['']" doc:name="Set Org Param">
             <munit:inbound-properties>
                 <munit:inbound-property key="http.uri.params" value="#[['org':'cloudcastle']]"/>
             </munit:inbound-properties>
         </munit:set>
         <flow-ref name="github-apiFlow" metadata:id="9b3b4db3-cdb2-4ce1-9a2f-715e289f72a9" doc:name="github-apiFlow"/>
-        <json:json-to-object-transformer returnClass="GithubResponse" metadata:id="9ff94a76-7f80-422b-a3f2-1fa3b648c06a" doc:name="JSON to Object"/>
-        <munit:assert-on-equals expectedValue="#[payload.name]" actualValue="#['Castle']" doc:name="Assert Equals"/>
-        <munit:assert-on-equals expectedValue="#[payload.site]" actualValue="#['http://castle.co/']" doc:name="Assert Equals"/>
-        <munit:assert-on-equals expectedValue="#[org]" actualValue="#[message.inboundProperties.'http.uri.params'.org]" doc:name="Assert Equals"/>
+        <json:json-to-object-transformer returnClass="GithubResponse" metadata:id="9ff94a76-7f80-422b-a3f2-1fa3b648c06a" doc:name="Parse JSON to Java Object"/>
+        <munit:assert-on-equals expectedValue="#[payload.name]" actualValue="#['Castle']" doc:name="Assert Name"/>
+        <munit:assert-on-equals expectedValue="#[payload.site]" actualValue="#['http://castle.co/']" doc:name="Assert Site"/>
+        <munit:assert-on-equals expectedValue="#[org]" actualValue="#[message.inboundProperties.'http.uri.params'.org]" doc:name="Assert Org Variable"/>
     </munit:test>
 </mule>

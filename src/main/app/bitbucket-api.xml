@@ -9,12 +9,12 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
     <sub-flow name="bitbucket-apiSub_Flow">
-        <http:request config-ref="Bitbucket_Request_Configuration" path="/2.0/users/{user}" method="GET" metadata:id="f58050e5-bf05-4430-aa22-4283146f3734" doc:name="Copy_of_HTTP">
+        <http:request config-ref="Bitbucket_Request_Configuration" path="/2.0/users/{user}" method="GET" metadata:id="f58050e5-bf05-4430-aa22-4283146f3734" doc:name="Call Bitbucket API">
             <http:request-builder>
                 <http:uri-param paramName="user" value="#[flowVars.user]"/>
             </http:request-builder>
         </http:request>
-        <dw:transform-message metadata:id="cd9893d3-bc64-4846-b0ba-3b992d978f83" doc:name="Copy_of_Transform Message">
+        <dw:transform-message metadata:id="cd9893d3-bc64-4846-b0ba-3b992d978f83" doc:name="Transform Bitbucket Response">
             <dw:input-payload doc:sample="bitbucket-output-example.json"/>
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -26,8 +26,8 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
         </dw:transform-message>
     </sub-flow>
     <flow name="bitbucket-apiFlow">
-        <http:listener config-ref="HTTP_Listener_Configuration" path="/bitbucket/users/{user}" doc:name="Copy_of_HTTP"/>
-        <set-variable variableName="user" value="#[message.inboundProperties.'http.uri.params'.user]" doc:name="Copy_of_Variable"/>
-        <flow-ref name="bitbucket-apiSub_Flow" doc:name="Copy_of_Flow Reference"/>
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/bitbucket/users/{user}" doc:name="HTTP Listener"/>
+        <set-variable variableName="user" value="#[message.inboundProperties.'http.uri.params'.user]" doc:name="Set User Variable"/>
+        <flow-ref name="bitbucket-apiSub_Flow" doc:name="Call bitbucket-apiSub_Flow"/>
     </flow>
 </mule>

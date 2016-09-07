@@ -10,7 +10,7 @@ import org.mule.munit.runner.functional.FunctionalMunitSuite;
 
 import org.junit.Assert;
 
-public class MyMuleTestSuite extends FunctionalMunitSuite {
+public class GithubApiTestSuite extends FunctionalMunitSuite {
 
 	@Override
 	protected String getConfigResources() {
@@ -18,7 +18,7 @@ public class MyMuleTestSuite extends FunctionalMunitSuite {
 	}
 	
 	@Test
-	public void myTest() throws Exception {
+	public void githubApiTest() throws Exception {
 		mockHttpResponse();
 		
 		MuleEvent inputEvent = generateEvent();
@@ -48,7 +48,7 @@ public class MyMuleTestSuite extends FunctionalMunitSuite {
 	}
 	
 	private void mockHttpResponse() {
-		Attribute attribute = Attribute.attribute("name").ofNamespace("doc").withValue("HTTP");
+		Attribute attribute = Attribute.attribute("name").ofNamespace("doc").withValue("Call Github API");
 		Object payload = getClass().getResourceAsStream("github-test-output-example.json");
 		MuleMessage messageToReturn = muleMessageWithPayload(payload);
 		whenMessageProcessor("HTTP").withAttributes(attribute).thenReturn(messageToReturn);;
